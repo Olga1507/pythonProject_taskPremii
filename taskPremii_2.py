@@ -5,56 +5,44 @@ credit, employers = map(int, input().split())
 # employers = int(input())
 # a, b = map(int, input().split())
 
-balanceArray = sorted([int(input()) for i in range(credit)])
-# Рачёт суммы денег на счетах
-sum_balanceArray = sum(balanceArray)
+# Считывание значений в массив счетов и рачёт суммы денег на счетах
+balanceArray = []
+sum_balanceArray = 0
+for i in range(credit):
+    temp = int(input())
+    balanceArray.append(temp)
+    sum_balanceArray += temp
+
 # Массив отношения суммы на каждом счете к общей сумме денег на всех счетах
-ratioArray = []
-for i in range(len(balanceArray)):
-    ratioArray.append(balanceArray[i] / sum_balanceArray)
-# print(ratioArray)
-
-# Расчёт скольким людям с каждого счёта можно заплатить
-# 1. Расчёт произведения доли счёта на количество людей
-amountOfPeopleForBalance = []
-for i in range(len(ratioArray)):
-    amountOfPeopleForBalance.append(ratioArray[i] * employers)
-# print(amountOfPeopleForBalance)
-
-# 2. Cохранение целой части и запоминание дробной (d) (может быть как 1, так и 2)
+# Массив, который включает, скольким людям с каждого счёта можно заплатить
 # Создали кортеж (тип tuple), который хранит остатот от деления Mod (0 элемент) и целую часть Div (1 элемент)
-arrModDiv = []
-for i in range(len(amountOfPeopleForBalance)):
-    arrModDiv.append(math.modf(amountOfPeopleForBalance[i]))
-# print(arrModDiv)
-
 # Сохранили массив целых людей
 arrDiv = []
-for i in range(len(arrModDiv)):
-    arrDiv.append(round(arrModDiv[i][1]))
-# print(arrDiv)
-
 # Сохранили сумму дробной части
 dTemp = 0
-for i in range(len(arrModDiv)):
-    dTemp += arrModDiv[i][0]
+for i in range(credit):
+    # 1. Расчёт произведения доли счёта на количество людей и скольким людям с каждого счёта можно заплатить
+    amountOfPeopleForBalance = (balanceArray[i] / sum_balanceArray) * employers
+    # 2. Cохранение целой части и запоминание дробной (d) (может быть как 1, так и 2)
+    arrModDiv = math.modf(amountOfPeopleForBalance)
+    arrDiv.append(round(arrModDiv[1]))
+    dTemp += arrModDiv[0]
 d = round(dTemp)
-# print(d)
 
 # Определение максимальной премии
 # Делим сумму счета на максимальное целое количество людей (k)
-kTemp = []
-k = []
+kMin = 1000000000
 for i in range(len(arrDiv)):
     # Можно столкнуться с проблемой деления на 0. В высшей математике при делении на 0 получается бесконечность.
     # Исходя из этого правила, в данной задаче нужно записать в массив как можно большее число.
     # Оно в любом случае не будет максимально возможной премией.
     if arrDiv[i] == 0:
-        kTemp.append(1000000000)
+        kTemp = 1000000000
     else:
-        kTemp.append(balanceArray[i] / arrDiv[i])
-k = sorted(kTemp)
-# print(k)
+        kTemp = (balanceArray[i] / arrDiv[i])
+
+    if kTemp < kMin:
+        kMin = kTemp
 
 # Делим сумму счета на максимальное целое количество людей (k+1)
 kPlus1 = []
@@ -71,7 +59,7 @@ kPlusOne = sorted(kPlusOneTemp, reverse=True)
 # если остаток людей = 0, то берём минимум из массива k, иначе массив (k+1) сортируем по убыванию
 # и берем элемент, индекс которого равен d (если d=1,то берём первй элемент, если d=2, то второй)
 if d == 0:
-    prize = k[0]
+    prize = kMin
 else:
     prize = kPlusOne[d - 1]
 print('Максимально возможная премия:', math.floor(prize))
